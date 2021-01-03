@@ -1,8 +1,6 @@
-# APISIX 快速入门
+# APISIX 的 route 快速入门
 
-## 简介
-
-本教程使用 rpm 包方式安装的Apache APISIX ，在这之前你需要先安装 Apache APISIX。如何安装 Apache APISIX 请查看[安装文档](../install/centos7_rpm_install.md)。对于未接触过 APISIX 的初学者，当您读完本教程，可以了解到 APISIX 的基本使用，适用的人群：APISIX 的初学者。
+本教程使用 rpm 包方式安装的 Apache APISIX ，在这之前你需要先安装 Apache APISIX。如何安装 Apache APISIX 请查看[安装文档](../install/centos7_rpm_install.md)。对于未接触过 APISIX 的初学者，当您读完本教程，可以了解到 APISIX 的 route 基本使用。
 
 ## 目录结构简介
 
@@ -14,7 +12,7 @@
 
 APISIX 的配置文件目录，主要有 config.yaml 和 config-default.yaml 等文件。
 
-config.yaml 与 config-default.yaml 文件是增量的关系，config-default.yaml 是 APISIX 的默认配置，若两个文件中存在相同字段信息的配置，以 `config.yaml` 中的配置生效。我们要修改 APISIX 配置信息，一般是在 `config.yaml` 中进行更改。
+`config.yaml` 与 `config-default.yaml` 文件是增量的关系，`config-default.yaml` 是 APISIX 的默认配置，若两个文件中存在相同字段信息的配置，以 `config.yaml` 中的配置生效。我们要修改 APISIX 配置信息，一般是在 `config.yaml` 中进行更改。
 
 2、apisix 目录
 
@@ -50,7 +48,7 @@ Upstream（上游）：后端 API 服务，是一个虚拟主机抽象，它根�
 
 1、创建 route
 
-创建一个 uri 为 `/get` ，上游服务为 `httpbin.org` 的 route ：
+创建一个 uri 为 `/get` ，路由 id 为 1，上游服务为 `httpbin.org` 的路由：
 
 ```shell
 curl http://127.0.0.1:9080/apisix/admin/routes/1 -H 'X-API-KEY: edd1c9f034335f136f87ad84b625c8f1' -X PUT -d '
@@ -75,9 +73,23 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 299
 Connection: keep-alive
-Server: APISIX/2.1
 Date: Thu, 31 Dec 2020 05:19:46 GMT
-......
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+Server: APISIX/2.1
+
+{
+  "args": {}, 
+  "headers": {
+    "Accept": "*/*", 
+    "Host": "127.0.0.1", 
+    "User-Agent": "curl/7.29.0", 
+    "X-Amzn-Trace-Id": "Root=1-5ff14c2a-2d5f625a691b375f42afae70", 
+    "X-Forwarded-Host": "127.0.0.1"
+  }, 
+  "origin": "127.0.0.1, 121.41.116.83", 
+  "url": "http://127.0.0.1/get"
+}
 ```
 
 请求不匹配 uri， 返回404状态码：
@@ -98,7 +110,7 @@ Server: APISIX/2.1
 
 1、创建 route
 
-创建一个前缀匹配 uri 为 `/*` ，上游服务为 `httpbin.org` 的 route ：
+创建一个前缀匹配 uri 为 `/*` ，路由 id 为 1，上游服务为 `httpbin.org` 的路由：
 
 ```shell
 curl http://127.0.0.1:9080/apisix/admin/routes/1 -H 'X-API-KEY: edd1c9f034335f136f87ad84b625c8f1' -X PUT -d '
@@ -128,7 +140,18 @@ Access-Control-Allow-Origin: *
 Access-Control-Allow-Credentials: true
 Server: APISIX/2.1
 
-......
+{
+  "args": {}, 
+  "headers": {
+    "Accept": "*/*", 
+    "Host": "127.0.0.1", 
+    "User-Agent": "curl/7.29.0", 
+    "X-Amzn-Trace-Id": "Root=1-5ff14c2a-2d5f625a691b375f42afae70", 
+    "X-Forwarded-Host": "127.0.0.1"
+  }, 
+  "origin": "127.0.0.1, 121.41.116.83", 
+  "url": "http://127.0.0.1/get"
+}
 ```
 
 ```shell
@@ -149,7 +172,7 @@ Server: APISIX/2.1
 
 **条件匹配请求**
 
-创建一个 uri 为 `/get` ，上游服务为 `httpbin.org` ，并且限制 host 为 `test.com` 的 route ：
+创建一个 uri 为 `/get` ，路由 id 为 1，上游服务为 `httpbin.org` ，并且限制 host 为 `test.com` 的路由 ：
 
 ```shell
 curl http://127.0.0.1:9080/apisix/admin/routes/1 -H 'X-API-KEY: edd1c9f034335f136f87ad84b625c8f1' -X PUT -d '
@@ -167,7 +190,7 @@ curl http://127.0.0.1:9080/apisix/admin/routes/1 -H 'X-API-KEY: edd1c9f034335f13
 
 测试
 
-请求 host 为 `test.com` ，匹配 route 成功：
+请求 host 为 `test.com` ，匹配路由成功：
 
 ```shell
 $ curl http://127.0.0.1:9080/get -i -H "host: test.com"
@@ -180,10 +203,21 @@ Access-Control-Allow-Origin: *
 Access-Control-Allow-Credentials: true
 Server: APISIX/2.1
 
-......
+{
+  "args": {}, 
+  "headers": {
+    "Accept": "*/*", 
+    "Host": "127.0.0.1", 
+    "User-Agent": "curl/7.29.0", 
+    "X-Amzn-Trace-Id": "Root=1-5ff14c2a-2d5f625a691b375f42afae70", 
+    "X-Forwarded-Host": "127.0.0.1"
+  }, 
+  "origin": "127.0.0.1, 121.41.116.83", 
+  "url": "http://127.0.0.1/get"
+}
 ```
 
-请求的 host 为 `foo.com` ，匹配 route 失败：
+请求的 host 为 `foo.com` ，匹配路由失败：
 
 ```shell
 $ curl http://127.0.0.1:9080/get -i -H "host: foo.com"
@@ -199,11 +233,11 @@ Server: APISIX/2.1
 
 **相同 uri 如何做选择**
 
-当存在相同路由的 `uri` 时，我们可以通过设置路由的 `priority` 优先级属性来决定优先匹配那个route ，或者给相同的路由增加匹配的条件来选择对应的路由。
+当存在不同路由相同的 `uri` 时，我们可以通过设置路由的 `priority` 优先级属性来决定优先匹配哪个路由 ，或者给相同的路由增加匹配的条件来选择对应的路由。
 
 1、不同路由具有相同 `uri` ，设置 `priority` 优先级属性
 
-在相同的 `uri` 情况下，`priority` 值越大的路由，被匹配到的优先级越高。下面创建 id 为1和2的两个路由，并且他们具有相同的 uri ，不同的 `priority` 值。其中 id 为1的路由上游地址可用，id 为2的路由上游地址不可用。
+在相同的 `uri` 情况下，`priority` 值越大的路由，被匹配到的优先级越高。下面创建 id 为分别为 1 和 2 的两个路由，并且他们具有相同的 `uri` ，不同的 `priority` 值。其中 id 为1的路由上游地址可用，id 为2的路由上游地址不可用。
 
 ```shell
 $ curl http://127.0.0.1:9080/apisix/admin/routes/1 -H 'X-API-KEY: edd1c9f034335f136f87ad84b625c8f1' -X PUT -d '
@@ -251,7 +285,7 @@ $ curl http://127.0.0.1:9080/get
 }
 ```
 
-测试发现，无论请求多少次，请求命中的都是 id 为1的路由。
+测试发现，无论请求多少次，请求命中的都是 id 为 1 的路由。
 
 2、不同路由具有相同 uri，设置不同的匹配条件
 
@@ -319,7 +353,7 @@ $ curl http://127.0.0.1:9080/get -H "appkey: id_2"
 bad request, invalid domain
 ```
 
-### 如何启用插件
+### 启用插件
 
 在 route 上启用插件，只需要在 route 上配置相关的插件信息，这里以启用 `limit-count` 插件为例，更多插件的使用请查看[官方插件文档](https://github.com/apache/apisix/tree/master/doc/plugins)。
 
@@ -382,7 +416,7 @@ Server: APISIX/2.1
 
 可以看到 limit-count 插件生效。
 
-### 如何移除插件
+### 移除插件
 
 当你想移除 `limit count` 插件的时候，很简单，在插件的配置中把对应的 json 配置删除即可，无须重启服务，即刻生效：
 
@@ -402,47 +436,16 @@ curl http://127.0.0.1:9080/apisix/admin/routes/1 -H 'X-API-KEY: edd1c9f034335f13
 
 现在就已经移除了 `limit count` 插件了。其他插件的开启和移除也是同样的方法。
 
-## 如何修改配置
+### 删除路由
 
-通过修改本地 conf/config.yaml 文件完成对 APISIX 服务本身的基本配置。
-
-比如修改 APISIX 默认监听端口为 8000，其他配置保持默认，在 conf/config.yaml 中只需这样配置：
-
-```yaml
-apisix:
-  node_listen: 8000             # APISIX listening port
-```
-
-比如指定 APISIX 默认监听端口为 8000，并且设置 etcd 地址为 `http://foo:2379`， 其他配置保持默认。在 conf/config.yaml 中只需这样配置：
-
-```yaml
-apisix:
-  node_listen: 8000             # APISIX listening port
-
-etcd:
-  host: "http://foo:2379"       # etcd address
-```
-
-其他默认配置，可以在 conf/config-default.yaml 文件中看到，该文件是与 APISIX 源码强绑定， 永远不要手工修改 conf/config-default.yaml 文件。如果需要自定义任何配置，都应在 conf/config.yaml 文件中完成。
-
-注意：不要手工修改 APISIX 自身的 conf/nginx.conf 文件，当服务每次启动时，apisix 会根据相应的模板文件自动生成新的 conf/nginx.conf 文件并自动启动服务。
-
-## 日志查看
-
-日志信息可以快速帮助我们在排查问题，在 APISIX 的 `logs/` 日志目录下有 access.log 和 error.log 的日志文件，access.log 用于记录 APISIX 的访问日志，error.log 用于记录 APISIX 的错误日志信息。
-
-在 access.log 日志中我们可以看到每个请求的访问记录,通过下面命令可以动态查看日志信息：
+当你想对已经创建的路由进行删除时，你可以通过路由 id 的方式进行删除指定路由。例如执行下面命令删除 id 为 1 的路由：
 
 ```shell
-$ tail -f /usr/local/apisix/logs/access.log 
-```
+$ curl http://127.0.0.1:9080/apisix/admin/routes/1 -H 'X-API-KEY: edd1c9f034335f136f87ad84b625c8f1' -X DELETE
 
-在 error.log 日志中记录着请求的错误日志信息，通过下面命令可以动态查看日志信息：
-
-```shell
-$ tail -f /usr/local/apisix/logs/error.log 
+{"header":{"raft_term":"25","member_id":"10276657743932975437","revision":"23643","cluster_id":"14841639068965178418"},"deleted":"1","key":"\/apisix\/routes\/1","node":{},"action":"delete"}
 ```
 
 ## 总结
 
-本教程主要站在 APISIX 初学者的角度介绍了 APISIX 的 route 相关使用及配置修改等，能够让你快速对 APISIX 的使用有个基本的了解。
+本教程主要介绍了 APISIX 的 route 相关使用，让你快速的对 APISIX 的 route 部分有个基本的了解和认识。
