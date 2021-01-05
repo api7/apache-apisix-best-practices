@@ -27,7 +27,7 @@ apisix:
 
 ```yaml
 apisix:
-  node_listen: 8000             # APISIX listening port
+  node_listen: 8080             # APISIX listening port
 
 etcd:
   host: "http://foo:2379"       # etcd address
