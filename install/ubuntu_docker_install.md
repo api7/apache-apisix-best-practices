@@ -22,7 +22,7 @@ REPOSITORY                 TAG                 IMAGE ID       CREATED         SI
 apache/apisix             latest              730b88f3d8e4   4 weeks ago     240MB
 ```
 
-3、启动容器
+3、启动及进入容器
 
 ```shell
 $ docker run -it apache/apisix:latest /bin/bash
