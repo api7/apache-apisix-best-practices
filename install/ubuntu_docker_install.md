@@ -6,75 +6,48 @@
 
 本教程通过 Docker 方式快速在 Ubuntu 系统上部署 APISIX 服务，这里已经默认你安装了 Docker 。
 
-1、拉取 APISIX 发布包
+1、下载 apisix-docker
 
 ```shell
-$ docker pull apache/apisix
+git clone https://github.com/apache/apisix-docker.git
 ```
 
-注：默认会拉取最新的版本，并且 Docker 镜像中并不包含 etcd 。
-
-2、查看 APISIX 镜像
+2、通过 docker-compose 快速部署
 
 ```shell
+# 进入到 apisix-docker 的 example 目录下
+$ cd apisix-docker/example/
+
+# 执行下面命令，部署 APISIX 并启动应用
+$ docker-compose -p docker-apisix up -d
+```
+
+3、查看 APISIX 服务
+
+在执行完 `docker-compose -p docker-apisix up -d` 命令后，已经自动完成 APISIX 相关服务的部署。
+
+```shell
+# 查看镜像，可以看到有三个镜像，其中 nginx 的镜像是用于模拟提供上游服务
 $ docker images
-REPOSITORY                 TAG                 IMAGE ID       CREATED         SIZE
-apache/apisix             latest              730b88f3d8e4   4 weeks ago     240MB
+REPOSITORY                TAG                 IMAGE ID            CREATED             SIZE
+docker.io/nginx           1.18.0-alpine       f2343e2e2507        3 weeks ago         21.9 MB
+docker.io/apache/apisix   2.1-alpine          f11935317510        5 weeks ago         113 MB
+docker.io/bitnami/etcd    3.4.9               ea2f063671fe        5 months ago        132 MB
+
+#查看服务运行状态，可以看到除了 APISIX 和 etcd 应用外，还启动了两个用于模拟上游服务的 nginx 容器
+$ docker ps
+CONTAINER ID        IMAGE                      COMMAND                  CREATED             STATUS              PORTS                                            NAMES
+5987459f5408        apache/apisix:2.1-alpine   "sh -c '/usr/bin/a..."   31 minutes ago      Up 30 minutes       0.0.0.0:9080->9080/tcp, 0.0.0.0:9443->9443/tcp   dockerapisix_apisix_1
+8cf3e81b8c22        bitnami/etcd:3.4.9         "/entrypoint.sh etcd"    40 minutes ago      Up 31 minutes       0.0.0.0:2379->2379/tcp, 2380/tcp                 dockerapisix_etcd_1
+18c9051da2e7        nginx:1.18.0-alpine        "/docker-entrypoin..."   56 minutes ago      Up 56 minutes       0.0.0.0:9081->80/tcp                             dockerapisix_web1_1
+17cd15f0a6b7        nginx:1.18.0-alpine        "/docker-entrypoin..."   56 minutes ago      Up 56 minutes       0.0.0.0:9082->80/tcp                             dockerapisix_web2_1
 ```
 
-3、启动及进入容器
-
-```shell
-$ docker run -it apache/apisix:latest /bin/bash
-```
-
-4、容器中安装 etcd
-
-```bash
-# 下载 etcd 安装包
-$ wget https://github.com/etcd-io/etcd/releases/download/v3.4.13/etcd-v3.4.13-linux-amd64.tar.gz
-
-# 解压安装
-$ tar -xvf etcd-v3.4.13-linux-amd64.tar.gz && \
-    cd etcd-v3.4.13-linux-amd64 && \
-    sudo cp -a etcd etcdctl /usr/bin/
-
-# 开启 etcd 服务
-$ nohup etcd &
-```
-
->注意：Apache APISIX 从 v2.0 开始不再支持 etcd v2 协议，并且 etcd 最低支持版本为 v3.4.0
-
-5、检查 APISIX 的版本号
-
-```shell
-$ apisix version
-
-2.1
-```
-
-6、启动 APISIX 服务
-
-```shell
-$ apisix start
-```
-
-7、查看 APISIX 启动情况
-
-```shell
-$ ps -ef | grep nginx
-root         492       0  0 07:55 ?        00:00:00 nginx: master process openresty -p /usr/local/apisix -c /usr/local/apisix/conf/nginx.conf
-nobody       493     492  0 07:55 ?        00:00:00 nginx: worker process
-nobody       494     492  0 07:55 ?        00:00:00 nginx: worker process
-nobody       495     492  0 07:55 ?        00:00:00 nginx: cache manager process
-nobody       496     492  0 07:55 ?        00:00:00 nginx: cache loader process
-root         497     492  0 07:55 ?        00:00:00 nginx: privileged agent process
-root         499     300  0 07:55 pts/3    00:00:00 grep --color=auto nginx
-```
-
-可以看到 APISIX 服务进程信息，说明启动成功。
+可以看到 APISIX 服务已经成功部署。
 
 ## 验证 APISIX 服务
+
+下面将基于 APISIX 的路由来做一个简单的验证。
 
 1、创建路由
 
@@ -121,6 +94,8 @@ Server: APISIX/2.1
   "url": "http://127.0.0.1/get"
 }
 ```
+
+更多示例请查看 apisix-docker 的 [README.md](https://github.com/apache/apisix-docker/blob/master/example/README.md) 文档。
 
 ## 总结
 
