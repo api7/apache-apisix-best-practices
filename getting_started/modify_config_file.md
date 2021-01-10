@@ -1,12 +1,12 @@
 # APISIX 配置文件修改
 
-APISIX 的配置文件在 `conf/` 目录下，本文章将介绍 `config.yaml` 和 `config-default.yaml` 两个配置文件。
+APISIX 的配置文件在 `conf/` 目录下，本文章主要介绍 `config.yaml` 和 `config-default.yaml` 两个配置文件。
 
 ## 初识配置文件
 
-APISIX 有一个默认的配置文件 `config-default.yaml` 和一个自定义的配置文件 `config.yaml` ，它们之间是一种增量的关系。如果两个文件中存在相同字段信息的配置，则是 `config.yaml` 文件中的配置生效。
+APISIX 有一个默认的配置文件 `config-default.yaml` 和一个自定义的配置文件 `config.yaml` ，它们之间是一种增量的关系。如果两个文件中存在相同字段信息的配置，则是 `config.yaml` 文件中的配置生效。请不要修改 `config-default.yaml` 中的配置，所有自定义的配置都应在 `config.yaml` 文件中完成。
 
-在刚安装的 APISIX 中，默认监听的 HTTP 端口为 9080、HTTPS 端口为 9443，默认允许访问 APISIX 服务的客户端IP地址范围为 `127.0.0.0/24`。了解更多相关配置信息请查看 [config-default.yaml](https://github.com/apache/apisix/blob/master/conf/config-default.yaml) 配置文件。
+在 APISIX 中，默认监听的 HTTP 端口为 9080、HTTPS 端口为 9443，默认允许访问 APISIX 服务的客户端IP地址范围为 `127.0.0.0/24`。了解更多相关配置信息请查看 [config-default.yaml](https://github.com/apache/apisix/blob/master/conf/config-default.yaml) 配置文件。
 
 ## 如何修改配置
 
@@ -19,6 +19,31 @@ APISIX 有一个默认的配置文件 `config-default.yaml` 和一个自定义�
 ```yaml
 apisix:
   node_listen: 8080             # APISIX listening port
+```
+
+重启 APISIX 服务:
+
+```shell
+$ apisix restart
+```
+
+查看 nginx.conf 文件的端口号：
+
+```shell
+$ cat conf/nginx.conf
+...
+listen 8080 reuseport;
+
+listen [::]:8080 reuseport;
+...
+```
+
+查看 APISIX 监听的端口:
+
+```shell
+$ netstat -nlp | grep 8080
+tcp        0      0 0.0.0.0:8080            0.0.0.0:*               LISTEN      3844/nginx: master  
+tcp6       0      0 :::8080                 :::*                    LISTEN      3844/nginx: master
 ```
 
 **示例2：**
@@ -56,6 +81,6 @@ plugins:
 
 **注意：**
 
-1、不要随意修改 `config-default.yaml` 文件的配置，如果需要自定义任何配置，我们都应在 `config.yaml` 文件中完成。
+1、不要修改 `config-default.yaml` 文件的配置，如果需要自定义任何配置，我们都要在 `config.yaml` 文件中完成。
 
 2、不要手动修改 APISIX 自身的 `conf/nginx.conf` 文件，因为当服务每次启动时，APISIX 会根据相应的模板文件自动生成新的 `conf/nginx.conf` 文件。
