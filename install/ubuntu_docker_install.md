@@ -1,4 +1,4 @@
-# Ubuntu 安装 APISIX
+# Ubuntu 系统通过 Docker 快速安装 APISIX
 
 如何在 Ubuntu 系统上通过 Docker 快速安装并运行 APISIX 服务，本教程将依据 [APISIX 官方文档](https://github.com/apache/apisix/blob/master/README.md)，将带您从零搭建 APISIX 服务。
 
