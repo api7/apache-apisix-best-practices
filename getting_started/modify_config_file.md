@@ -48,19 +48,19 @@ tcp6       0      0 :::8080                 :::*                    LISTEN      
 
 **示例2：**
 
-指定 APISIX 监听的 HTTP 端口为 8080，并且设置 etcd 地址为 `http://foo:2379`， 其他配置保持默认。在 `config.yaml` 文件中只需要这样配置：
+指定 APISIX 监听的 HTTP 端口为 8080，并且设置 etcd 地址为 `http://172.17.0.1:2379`， 其他配置保持默认。在 `config.yaml` 文件中只需要这样配置：
 
 ```yaml
 apisix:
   node_listen: 8080             # APISIX listening port
 
 etcd:
-  host: "http://foo:2379"       # etcd address
+  host: "http://172.17.0.1:2379"       # etcd address
 ```
 
 **示例3：**
 
-指定 APISIX 监听的 HTTP 端口为 8080、HTTPS 端口为 8443，允许所有的客户端地址访问，etcd 地址为 `http://foo:2379`，并且只启用 `ip-restriction` 和 `key-auth` 两个插件。在 `config.yaml` 文件中只需要这样配置：
+指定 APISIX 监听的 HTTP 端口为 8080、HTTPS 端口为 8443，允许所有的客户端地址访问，etcd 地址为 `http://172.17.0.1:2379`，并且只启用 `ip-restriction` 和 `key-auth` 两个插件。在 `config.yaml` 文件中只需要这样配置：
 
 ```yaml
 apisix:
@@ -72,7 +72,7 @@ apisix:
   
 etcd:
   host:
-    - "http://foo:2379"
+    - "http://172.17.0.1:2379"
 
 plugins:
   - ip-restriction
